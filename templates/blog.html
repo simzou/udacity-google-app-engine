@@ -1,0 +1,14 @@
+<!-- DOC TYPE HTML --> 
+
+<html>
+<h1>This is a blog</h1>
+<link href="su_styles.css" rel="stylesheet" type="text/css" />
+<a href="/unit3/blog/newpost">Make New Post</a>
+    <hr>
+   {% for post in posts %}
+    <div>
+        <div>{{post.subject}}</div>
+        <pre>{{post.content}}</pre>
+    </div>
+    {% endfor %}
+</html>

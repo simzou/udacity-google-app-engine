@@ -1,0 +1,30 @@
+<!-- DOC TYPE HTML --> 
+
+<html>
+<title>Blog</title>
+<body>
+  <a href="/unit3/blog">CS 253 Blog</a>
+  
+  <div id="content">
+  
+  <h2>new post</h2>
+
+    <form method="post">
+      <label>
+        <div>subject</div>
+        <input type="text" name="subject" value="{{title}}">
+      </label>
+
+      <label>
+        <div>content</div>
+        <textarea name="content">{{content}}</textarea>
+      </label>
+
+      <div class="error">{{error}}</div>
+
+      <input type="submit">
+    </form>
+
+  </div>
+</body>
+</html>
