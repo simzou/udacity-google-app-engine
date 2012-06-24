@@ -54,7 +54,7 @@ class PostPage(Handler):
         post = Blog.get_by_id(int(post_id))
         self.render("post.html", subject=post.subject, content=post.content)
 		
-app = webapp2.WSGIApplication([('/unit3/blog', MainPage),
-                               ('/unit3/blog/newpost', NewPostPage),
-                               ('/unit3/blog/(\d+)', PostPage)], 
+app = webapp2.WSGIApplication([('/blog', MainPage),
+                               ('/blog/newpost', NewPostPage),
+                               ('/blog/(\d+)', PostPage)], 
                                debug=True)
