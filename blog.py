@@ -44,7 +44,7 @@ class NewPostPage(Handler):
             blog = Blog(subject=subject, content=content)
             blog.put()
             id = int(blog.key().id())
-            self.redirect('/unit3/blog/' + str(id))
+            self.redirect('/blog/post/' + str(id))
         else:
             error = "Need both subject and content"
             self.render_page(subject=subject,content=content,error=error)
@@ -56,5 +56,5 @@ class PostPage(Handler):
 		
 app = webapp2.WSGIApplication([('/blog', MainPage),
                                ('/blog/newpost', NewPostPage),
-                               ('/blog/(\d+)', PostPage)], 
+                               ('/blog/post/(\d+)', PostPage)], 
                                debug=True)
