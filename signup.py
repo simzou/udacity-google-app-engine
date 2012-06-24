@@ -16,7 +16,6 @@
 #
 import webapp2
 import re, string
-import cgi
 import jinja2
 import os
 
