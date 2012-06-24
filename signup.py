@@ -23,65 +23,6 @@ import os
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
 
-def escape_html(s):
-    return cgi.escape(s, quote=True)
-
-signup_form="""
-    <h2>Signup</h2>
-    <form method="post">
-      <table>
-        <tr>
-          <td class="label">
-            Username
-          </td>
-          <td>
-            <input type="text" name="username" value="%(username)s">
-          </td>
-          <td class="error">
-            <div style="color: red">%(username_error)s</div>
-          </td>
-        </tr>
-
-        <tr>
-          <td class="label">
-            Password
-          </td>
-          <td>
-            <input type="password" name="password" value="">
-          </td>
-          <td class="error">
-            <div style="color: red">%(password_error)s</div>
-          </td>
-        </tr>
-
-        <tr>
-          <td class="label">
-            Verify Password
-          </td>
-          <td>
-            <input type="password" name="verify" value="">
-          </td>
-          <td class="error">
-            <div style="color: red">%(verify_error)s</div>
-          </td>
-        </tr>
-
-        <tr>
-          <td class="label">
-            Email (optional)
-          </td>
-          <td>
-            <input type="text" name="email" value="%(email)s">
-          </td>
-          <td class="error">
-            <div style="color: red">%(email_error)s</div>
-          </td>
-        </tr>
-      </table>
-
-      <input type="submit">
-    </form>
-"""
 class Handler(webapp2.RequestHandler):
     def write(self, *args, **kwargs):
         self.response.out.write(*args, **kwargs)
@@ -92,18 +33,16 @@ class Handler(webapp2.RequestHandler):
         
     def render(self, template, **kwargs):
         self.write(self.render_str(template, **kwargs))
-        
-        
-class SignUpHandler(webapp2.RequestHandler):
-    
+  
+class SignUpHandler(Handler):
     def get(self):
-        write_form(self)
+        self.render('signup.html')
         
     def post(self):
-        user_username = escape_html(self.request.get('username'))
-        user_password = escape_html(self.request.get('password'))
-        user_verify   = escape_html(self.request.get('verify'))
-        user_email    = escape_html(self.request.get('email'))
+        user_username = self.request.get('username')
+        user_password = self.request.get('password')
+        user_verify   = self.request.get('verify')
+        user_email    = self.request.get('email')
         
         valid_user = valid_username(user_username)
         valid_pass = valid_password(user_password)
@@ -116,7 +55,6 @@ class SignUpHandler(webapp2.RequestHandler):
         
         if (valid_user and valid_pass and user_password == user_verify and valid_mail):
             self.redirect('/welcome?username=%s' % user_username)
-            self.response.out.write('Welcome, %s' % user_username)
         if not valid_user:
             username_error = 'That was not a valid username'
         if not valid_pass:
@@ -126,27 +64,13 @@ class SignUpHandler(webapp2.RequestHandler):
         if not valid_mail:
             email_error = 'That was not a valid e-mail'
             
-        write_form(self, username=user_username,
+        self.render('signup.html', username=user_username,
                          email=user_email,
                          user_error=username_error, 
                          password_error=password_error, 
                          email_error=email_error, 
                          verify_error=verify_error)
-
-class SignUpHandler(Handler):
-    def get(self):
-        self.render('signup.html')
                          
-def write_form(self, username='', password='', email='', 
-               user_error ='', password_error='', verify_error='', email_error=''):
-
-    self.response.out.write(signup_form % { "username": username,                                        
-                                        "password": password,
-                                        "email": email,
-                                        "username_error": user_error,
-                                        "verify_error": verify_error,
-                                        "password_error": password_error,
-                                        "email_error": email_error})                
 def valid_username(username):
     user_re = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
     return (username if user_re.match(username) else False)
