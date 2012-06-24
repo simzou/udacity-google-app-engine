@@ -15,40 +15,16 @@
 # limitations under the License.
 #
 import webapp2
-import re
-import string
+import re, string
 import cgi
+import jinja2
+import os
+
+template_dir = os.path.join(os.path.dirname(__file__), 'templates')
+jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
 
 def escape_html(s):
     return cgi.escape(s, quote=True)
-
-birthday_form="""
-    <form method="post">
-        What is your birthday?
-        <br>
-        <label>Month
-            <input type="text" name="month">
-        </label>
-        <label>Day
-            <input type="text" name="day">
-        </label>
-        <label>Year
-            <input type="text" name="year">
-        </label>
-        <br>
-        <br>
-        <input type="submit">
-    </form>
-"""
-rot13_form="""
-    <form method="post">
-      <textarea name="text"
-                style="height: 100px; width: 400px;">%(text)s
-      </textarea>
-      <br>
-      <input type="submit">
-    </form>
-"""
 
 signup_form="""
     <h2>Signup</h2>
@@ -106,20 +82,17 @@ signup_form="""
       <input type="submit">
     </form>
 """
-
-class MainHandler(webapp2.RequestHandler):
-    def get(self):
-        self.response.out.write(birthday_form)
-    def post(self):
-        self.response.out.write("Thanks! That's a totally valid day!")
+class Handler(webapp2.RequestHandler):
+    def write(self, *args, **kwargs):
+        self.response.out.write(*args, **kwargs)
+    
+    def render_str(self, template, **params):
+        t = jinja_environment.get_template(template)
+        return t.render(params)
         
-class ROT13Handler(webapp2.RequestHandler):
-    def get(self):
-        self.response.out.write(rot13_form)
-    def post(self):
-        user_text = escape_html(self.request.get('text').encode('rot13'))
-        text_map = {'text': user_text}
-        self.response.out.write(rot13_form % text_map)
+    def render(self, template, **kwargs):
+        self.write(self.render_str(template, **kwargs))
+        
         
 class SignUpHandler(webapp2.RequestHandler):
     
@@ -159,7 +132,11 @@ class SignUpHandler(webapp2.RequestHandler):
                          password_error=password_error, 
                          email_error=email_error, 
                          verify_error=verify_error)
-        
+
+class SignUpHandler(Handler):
+    def get(self):
+        self.render('signup.html')
+                         
 def write_form(self, username='', password='', email='', 
                user_error ='', password_error='', verify_error='', email_error=''):
 
@@ -187,8 +164,6 @@ class WelcomeHandler(webapp2.RequestHandler):
         username = self.request.get('username')
         self.response.out.write("Welcome, %s" % username)
 
-app = webapp2.WSGIApplication([('/', MainHandler), 
-                               ('/rot13',ROT13Handler),
-                               ('/signup',SignUpHandler),
+app = webapp2.WSGIApplication([('/signup',SignUpHandler),
                                ('/welcome',WelcomeHandler)], 
                                 debug=True)
