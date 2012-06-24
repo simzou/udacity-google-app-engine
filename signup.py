@@ -15,24 +15,15 @@
 # limitations under the License.
 #
 import webapp2
-import re, string
 import jinja2
 import os
+import re
+import string
+from main import Handler
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
 
-class Handler(webapp2.RequestHandler):
-    def write(self, *args, **kwargs):
-        self.response.out.write(*args, **kwargs)
-    
-    def render_str(self, template, **params):
-        t = jinja_environment.get_template(template)
-        return t.render(params)
-        
-    def render(self, template, **kwargs):
-        self.write(self.render_str(template, **kwargs))
-  
 class SignUpHandler(Handler):
     def get(self):
         self.render('signup.html')
@@ -63,12 +54,15 @@ class SignUpHandler(Handler):
         if not valid_mail:
             email_error = 'That was not a valid e-mail'
             
-        self.render('signup.html', username=user_username,
-                         email=user_email,
-                         user_error=username_error, 
-                         password_error=password_error, 
-                         email_error=email_error, 
-                         verify_error=verify_error)
+        signup_map = {
+            'username': user_username,
+            'email': user_email,
+            'username_error': username_error,
+            'password_error': password_error,
+            'email_error': email_error,
+            'verify_error': verify_error}
+            
+        self.render('signup.html', **signup_map)
                          
 def valid_username(username):
     user_re = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
