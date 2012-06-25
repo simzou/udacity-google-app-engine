@@ -8,10 +8,12 @@ template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_environment = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
 
 class Blog(db.Model):
-    subject = db.StringProperty()
+    subject = db.StringProperty(required=True)
     content = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
+    last_modified = db.DateTimeProperty(auto_now=True)
 		
+    
 class MainPage(Handler):
 
     def get(self):

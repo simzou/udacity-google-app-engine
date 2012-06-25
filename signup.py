@@ -29,40 +29,31 @@ class SignUpHandler(Handler):
         self.render('signup.html')
         
     def post(self):
-        user_username = self.request.get('username')
+    
+        params = {}
+
+        params['username'] = user_username = self.request.get('username')
         user_password = self.request.get('password')
         user_verify   = self.request.get('verify')
-        user_email    = self.request.get('email')
+        params['email']    = user_email    = self.request.get('email')
         
         valid_user = valid_username(user_username)
         valid_pass = valid_password(user_password)
         valid_mail = valid_email(user_email)
         
-        username_error = ''
-        password_error = ''
-        verify_error   = ''
-        email_error    = ''
         
         if (valid_user and valid_pass and user_password == user_verify and valid_mail):
             self.redirect('/welcome?username=%s' % user_username)
         if not valid_user:
-            username_error = 'That was not a valid username'
+            params['username_error'] = 'That was not a valid username'
         if not valid_pass:
-            password_error = 'Not a valid password'
+            params['password_error'] = 'Not a valid password'
         if (user_password != user_verify):
-            verify_error = "Your passwords didn't match"
+            params['verify_error'] = "Your passwords didn't match"
         if not valid_mail:
-            email_error = 'That was not a valid e-mail'
-            
-        signup_map = {
-            'username': user_username,
-            'email': user_email,
-            'username_error': username_error,
-            'password_error': password_error,
-            'email_error': email_error,
-            'verify_error': verify_error}
-            
-        self.render('signup.html', **signup_map)
+            params['email_error'] = 'That was not a valid e-mail'
+       
+        self.render('signup.html', **params)
                          
 def valid_username(username):
     user_re = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
