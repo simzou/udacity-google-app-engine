@@ -7,7 +7,7 @@ from main import Handler
 template_dir = os.path.join(os.path.dirname(__file__), 'templates') 
 jinja_environment = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
 
-class Blog(db.Model):
+class Post(db.Model):
     subject = db.StringProperty(required=True)
     content = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
@@ -17,36 +17,33 @@ class Blog(db.Model):
 class MainPage(Handler):
 
     def get(self):
-        posts = db.GqlQuery('SELECT * FROM Blog ORDER BY created DESC')
+        posts = db.GqlQuery('SELECT * FROM Post ORDER BY created DESC')
         self.render('blog.html', posts=posts)
 		
 class NewPostPage(Handler):
-
-    def render_page(self, subject='', content='', error=''):
-        self.render('newpost.html', subject=subject, content=content, error=error)
         
     def get(self):
-		self.render_page()
+		self.render('newpost.html')
         
     def post(self):
         subject = self.request.get('subject')
         content = self.request.get('content')
         
         if subject and content:
-            blog = Blog(subject=subject, content=content)
-            blog.put()
-            id = int(blog.key().id())
+            post = Post(subject=subject, content=content)
+            post.put()
+            id = post.key().id()
             self.redirect('/blog/post/' + str(id))
         else:
             error = "Need both subject and content"
-            self.render_page(subject=subject,content=content,error=error)
+            self.render('newpost.html', subject=subject,content=content,error=error)
         
 class PostPage(Handler):
     def get(self,post_id):
-        post = Blog.get_by_id(int(post_id))
+        post = Post.get_by_id(int(post_id))
         self.render("post.html", subject=post.subject, content=post.content)
 		
-app = webapp2.WSGIApplication([('/blog', MainPage),
+app = webapp2.WSGIApplication([('/blog/?', MainPage),
                                ('/blog/newpost', NewPostPage),
                                ('/blog/post/(\d+)', PostPage)], 
                                debug=True)
