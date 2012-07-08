@@ -1,8 +1,11 @@
-<!-- DOC TYPE HTML --> 
+{% extends "base.html" %}
 
-<html>
-<title>Blog</title>
-<a href="/">Home</a>
+{% block title %}
+    Blog
+{% endblock %}
+
+{% block content %}
+
 <h1>This is a blog</h1>
 <a href="/blog/newpost">Make New Post</a>
     <hr>
@@ -12,4 +15,4 @@
         <pre>{{post.content}}</pre>
     </div>
     {% endfor %}
-</html>
+{% endblock %}

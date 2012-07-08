@@ -1,11 +1,9 @@
-<!-- DOC TYPE HTML --> 
-<html>
-    <title>Home</title>
-    <p>You've been here {{visits}} times!</p>
-    <a href="/blog">Blog</a>
-    <br />
-    <a href="/signup">Signup</a>
-    <br />
-    <a href="/rot13">Rot13</a>
+{% extends "base.html" %}
 
-</html>
+{% block title %}
+    CS253 - Home
+{% endblock %}
+
+{% block content %}
+    <p>You've been here {{visits}} times!</p>
+{% endblock %}

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+    {% block title %}
+    {% endblock %}
+    </title>
+</head>
+
+<body>
+    <div>
+    <a href="/">
+        Home
+    </a>
+    |
+    <a href="/blog">
+        Blog
+    </a>
+    |
+    <a href="/rot13">
+        Rot13
+    </a>
+    </div>
+    <div class="login-area">
+        {% if user %}
+            {{user.name}} (<a href="/logout">logout</a>)
+        {% else %}
+            <a href="/login">login</a>
+            |
+            <a href="/signup">signup</a>
+        {% endif %}
+
+    </div>
+    
+    <div id="content">
+    {% block content %}
+    {% endblock %}
+    </div>
+</body>
+</html>

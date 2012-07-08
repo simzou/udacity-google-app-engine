@@ -1,7 +1,9 @@
-<!-- DOC TYPE HTML --> 
-<html>
-    <title>{{subject}}</title>
-    <a href="/blog">Blog</a>
+{% extends "base.html" %}
+{% block title %}
+    {{subject}}
+{% endblock %}
+
+{% block content %}
     <h1>{{subject}}</h1>
     <p>{{content}}</p>
-</html>
+{% endblock %}
