@@ -31,6 +31,7 @@ class User(db.Model):
     name = db.StringProperty(required=True)
     password_hash = db.StringProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
+    email = db.StringProperty()
 
 class SignUpHandler(Handler):
     def get(self):
@@ -55,7 +56,7 @@ class SignUpHandler(Handler):
         
         if (valid_user and valid_pass and user_password == user_verify and valid_mail):
             
-            new_user = User(name=user_username, password_hash=make_pw_hash(user_username, user_password))
+            new_user = User(name=user_username, password_hash=make_pw_hash(user_username, user_password), email=user_email)
             new_user.put()
             new_id = new_user.key().id()
             self.response.headers.add_header('Set-Cookie', 'ID|Hash=%s; Path=/' % make_secure_val(str(new_id)))
