@@ -1,0 +1,4 @@
+<h1>{{post.subject}}</h1>
+{{post.created.strftime("%b %d, %Y")}}
+<hr>
+<pre>{{post._render_text | safe}}</pre>

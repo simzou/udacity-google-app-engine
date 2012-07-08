@@ -1,9 +1,8 @@
 {% extends "base.html" %}
 {% block title %}
-    {{subject}}
+    {{post.subject}}
 {% endblock %}
 
 {% block content %}
-    <h1>{{subject}}</h1>
-    <p>{{content}}</p>
+    <p>{{post.render() | safe}}</p>
 {% endblock %}
