@@ -8,11 +8,13 @@
 
 <h1>This is a blog</h1>
 <a href="/blog/newpost">Make New Post</a>
-    <hr>
    {% for post in posts %}
     <div>
-        <div>{{post.subject}}</div>
+ <!--       
+ 		<div>{{post.subject}}</div>
         <pre>{{post.content}}</pre>
+ -->
+        <div>{{post.render() | safe}} </div>
     </div>
     {% endfor %}
 {% endblock %}

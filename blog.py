@@ -19,6 +19,7 @@ class Post(db.Model):
 		
     def render(self):
         self._render_text = self.content.replace('\n', '<br>')
+        # self._render_text = self.content
         return render_str("post-content.html", post=self)
     
 class MainPage(Handler):

@@ -11,31 +11,28 @@
 </head>
 
 <body>
-    <div>
-    <a href="/">
-        Home
-    </a>
+    <div class="top-bar">
+    <a class="top-link" href="/">
+        Home</a>
     |
-    <a href="/blog">
-        Blog
-    </a>
+    <a class="top-link" href="/blog">
+        Blog</a>
     |
-    <a href="/rot13">
-        Rot13
-    </a>
-    </div>
+    <a class="top-link" href="/rot13">
+        Rot13</a>
     
     <div class="login-area">
         {% if user %}
-            {{user.name}} (<a href="/logout">logout</a>)
+            {{user.name}} 
+            (<a class="top-link" href="/logout">logout</a>)
         {% else %}
-            <a href="/login">login</a>
+            <a class="top-link" href="/login">login</a>
             |
-            <a href="/signup">signup</a>
+            <a class="top-link" href="/signup">signup</a>
         {% endif %}
 
     </div>
-    
+    </div>
     <div id="content">
     {% block content %}
     {% endblock %}
