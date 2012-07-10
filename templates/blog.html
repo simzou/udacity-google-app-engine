@@ -6,15 +6,11 @@
 
 {% block content %}
 
-<h1>This is a blog</h1>
+<div class="main-heading">This is a blog</div>
 <a href="/blog/newpost">Make New Post</a>
    {% for post in posts %}
-    <div>
- <!--       
- 		<div>{{post.subject}}</div>
-        <pre>{{post.content}}</pre>
- -->
-        <div>{{post.render() | safe}} </div>
-    </div>
+   <div>
+   		{{post.render() | safe}} 
+   	</div>
     {% endfor %}
 {% endblock %}
