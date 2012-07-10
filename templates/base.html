@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link type="text/css" rel="stylesheet" href="/static/main.css" />
+    
     <title>
     {% block title %}
     {% endblock %}
     </title>
+    
 </head>
 
 <body>
@@ -21,6 +24,7 @@
         Rot13
     </a>
     </div>
+    
     <div class="login-area">
         {% if user %}
             {{user.name}} (<a href="/logout">logout</a>)
