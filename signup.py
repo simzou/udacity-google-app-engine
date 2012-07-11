@@ -16,6 +16,7 @@
 #
 import os
 import re
+import hmac
 import random
 import webapp2
 import jinja2
@@ -26,6 +27,8 @@ from google.appengine.ext import db
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
+
+SECRET = "code"
 
 class User(db.Model):
     name = db.StringProperty(required=True)
@@ -134,7 +137,7 @@ def make_pw_hash(name, pw, salt=None):
     return '{},{}'.format(h, salt)
 
 def hash_str(s):
-        return hashlib.md5(s).hexdigest()
+        return hmac.new(SECRET,s).hexdigest()
 
 def make_secure_val(s):
         return "%s|%s" % (s, hash_str(s))
