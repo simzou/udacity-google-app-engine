@@ -14,13 +14,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import os
+import hmac
 import webapp2
 import jinja2 
-import os
 from google.appengine.ext import db
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates') 
 jinja_environment = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
+
+SECRET = "code"
+
+def hash_str(s):
+    return hmac.new(SECRET,s).hexdigest()
+
+def make_secure_val(s):
+    return "%s|%s" % (s, hash_str(s))
+
+def check_secure_val(h):
+    val = h.split('|')[0]
+    if h == make_secure_val(val):
+        return val
 
 class Handler(webapp2.RequestHandler):
 	def write(self, *args, **kwargs):
@@ -33,15 +47,29 @@ class Handler(webapp2.RequestHandler):
 	def render(self, template, **kwargs):
 		self.write(self.render_str(template,**kwargs))
 		
+	def set_secure_cookie(self, name, val):
+		cookie_val = make_secure_val(val)
+		self.response.headers.add_header(
+			'Set-Cookie', 
+			'%s=%s; Path=/' % (name, cookie_val))
+
+	def read_secure_cookie(self,name):
+		cookie_val = self.request.cookies.get(name)
+		return cookie_val and check_secure_val(cookie_val)
+
+	def get_visits(self):
+		visits = str(self.read_secure_cookie('visits')) # for isdigit()
+		return (int(visits) + 1 if visits.isdigit() else 0)
+
 class MainPage(Handler):
 
     def get(self):
         # self.response.headers['Content-Type'] = 'text/plain'
-        visits = str(self.request.cookies.get('visits'))
-        if visits.isdigit(): visits = int(visits) + 1
-        else: visits = 0
-        self.response.headers.add_header('Set-Cookie', 'visits=%s' % str(visits))
+        visits = self.get_visits()
+        self.set_secure_cookie('visits', str(visits))
         self.render("index.html", visits=visits)
         
+
+
 app = webapp2.WSGIApplication([('/', MainPage)], 
                                 debug=True)

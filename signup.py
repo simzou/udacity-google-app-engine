@@ -76,15 +76,18 @@ class SignUpHandler(Handler):
             params['email_error'] = 'That was not a valid e-mail'
        
         self.render('signup.html', **params)
-                
+
+
 class WelcomeHandler(Handler):
     def get(self):
         # username = self.request.get('username')
         cookie = self.request.cookies.get('ID|Hash')
         if cookie and check_secure_val(cookie):
             user_id, id_hash = cookie.split('|')
-            username = User.get_by_id(int(user_id))
-            self.response.out.write("Welcome, %s" % username.name)
+            user = User.get_by_id(int(user_id))
+            visits = self.get_visits()
+            self.render('welcome.html', user=user, visits=visits)
+            # self.response.out.write("Welcome, %s" % username.name
         else:
             self.redirect('/signup')
 

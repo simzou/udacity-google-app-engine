@@ -12,26 +12,25 @@
 
 <body>
     <div class="top-bar">
-    <a class="top-link" href="/">
-        home</a>
-    |
-    <a class="top-link" href="/blog">
-        blog</a>
-    |
-    <a class="top-link" href="/rot13">
-        rot13</a>
-    
-    <div class="login-area">
-        {% if user %}
-            {{user.name}} 
-            (<a class="top-link" href="/logout">logout</a>)
-        {% else %}
-            <a class="top-link" href="/login">login</a>
-            |
-            <a class="top-link" href="/signup">signup</a>
-        {% endif %}
-
-    </div>
+        <a class="top-link" href="/">
+            home</a>
+        |
+        <a class="top-link" href="/blog">
+            blog</a>
+        |
+        <a class="top-link" href="/rot13">
+            rot13</a>
+        
+        <div class="login-area">
+            {% if user %}
+                {{user.name}}
+                (<a class ="top-link" href="/logout">logout</a>)
+            {% else %}
+                <a class="top-link" href="/login">login</a>
+                |
+                <a class="top-link" href="/signup">signup</a>
+            {% endif %}
+        </div>
     </div>
     <div id="content">
     {% block content %}
