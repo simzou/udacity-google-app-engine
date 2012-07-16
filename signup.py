@@ -1,19 +1,3 @@
-#!/usr/bin/env python
-#
-# Copyright 2007 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
 import os
 import re
 import hmac
@@ -36,47 +20,67 @@ class User(db.Model):
     created = db.DateTimeProperty(auto_now_add=True)
     email = db.StringProperty()
 
+    @classmethod
+    def by_id(self, uid):
+        return User.get_by_id(uid)
+
+    @classmethod
+    def by_name(self, name):
+        return User.all().filter('name = ', name).get()
+
+class BlogHandler(Handler):
+    def login(self, user):
+        self.set_secure_cookie('user_id', str(user.key().id()))
+
+    def logout(self):
+        self.set_secure_cookie('user_id', '')
+
+    def initialize(self):
+        webapp2.RequestHandler.initializee(self, *a, **kw)
+        uid = self.read_secure_cookie('user_id')
+        self.user = uid and User.by_id(int(uid))
+
 class SignUpHandler(Handler):
     def get(self):
         self.render('signup.html')
         
     def post(self):
         params = {}
+        have_error = False
         
         params['username'] = user_username = self.request.get('username')
         user_password = self.request.get('password')
         user_verify   = self.request.get('verify')
         params['email']    = user_email    = self.request.get('email')
-        
-        if username_exists(user_username):
-            params['username_error'] = 'Username already exists'
-            self.render('signup.html', **params)
-            return
-        
+                
         valid_user = valid_username(user_username)
         valid_pass = valid_password(user_password)
         valid_mail = valid_email(user_email)
         
-        if (valid_user and valid_pass and user_password == user_verify and valid_mail):
-            
+        if not valid_user:
+            have_error = True
+            params['error_username'] = 'That was not a valid username'
+        if User.by_name(user_username):
+            have_error = True
+            params['error_username'] = 'Username already exists'
+        if not valid_password:
+            have_error = True
+            params['error_password'] = 'Not a valid password'
+        if user_password != user_verify:
+            have_error = True
+            params['error_verify'] = "Your passwords didn't match"
+        if not valid_mail:
+            have_error = True
+            params['error_email'] = 'That was not a valid e-mail'
+
+        if have_error:
+            self.render('signup.html', **params)
+        else:
             new_user = User(name=user_username, password_hash=make_pw_hash(user_username, user_password), email=user_email)
             new_user.put()
             new_id = new_user.key().id()
             self.response.headers.add_header('Set-Cookie', 'ID|Hash=%s; Path=/' % make_secure_val(str(new_id)))
-            
-            # self.redirect('/welcome?username=%s' % user_username)
             self.redirect('/welcome')
-        if not valid_user:
-            params['username_error'] = 'That was not a valid username'
-        if not valid_pass:
-            params['password_error'] = 'Not a valid password'
-        if (user_password != user_verify):
-            params['verify_error'] = "Your passwords didn't match"
-        if not valid_mail:
-            params['email_error'] = 'That was not a valid e-mail'
-       
-        self.render('signup.html', **params)
-
 
 class WelcomeHandler(Handler):
     def get(self):
