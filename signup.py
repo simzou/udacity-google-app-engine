@@ -1,44 +1,24 @@
 import os
 import re
-import hmac
-import random
 import webapp2
 import jinja2
-import string
-import hashlib
 from main import Handler
 from google.appengine.ext import db
+from main import User
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
 
 SECRET = "code"
 
-class User(db.Model):
-    name = db.StringProperty(required=True)
-    password_hash = db.StringProperty(required=True)
-    created = db.DateTimeProperty(auto_now_add=True)
-    email = db.StringProperty()
-
-    @classmethod
-    def by_id(self, uid):
-        return User.get_by_id(uid)
-
-    @classmethod
-    def by_name(self, name):
-        return User.all().filter('name = ', name).get()
 
 class BlogHandler(Handler):
     def login(self, user):
         self.set_secure_cookie('user_id', str(user.key().id()))
+        self.user = user
 
     def logout(self):
-        self.set_secure_cookie('user_id', '')
-
-    def initialize(self, *a, **kw):
-        webapp2.RequestHandler.initialize(self, *a, **kw)
-        uid = self.read_secure_cookie('user_id')
-        self.user = uid and User.by_id(int(uid))
+        self.response.delete_cookie('user_id')
 
 class SignUpHandler(BlogHandler):
     def get(self):
@@ -76,7 +56,7 @@ class SignUpHandler(BlogHandler):
         if have_error:
             self.render('signup.html', **params)
         else:
-            new_user = User(name=user_username, password_hash=make_pw_hash(user_username, user_password), email=user_email)
+            new_user = User.register(user_username, user_password, user_email)
             new_user.put()
             self.user = new_user
             self.login(self.user)
@@ -90,7 +70,7 @@ class WelcomeHandler(BlogHandler):
         else:
             self.redirect('/signup')
 
-class LoginHandler(Handler):
+class LoginHandler(BlogHandler):
     def get(self):
         self.render('login.html')
     
@@ -99,23 +79,18 @@ class LoginHandler(Handler):
         password = self.request.get('password')
         params = {}
         
-        if username_exists(username):
-            user = User.all().filter('name = ', username).get()
-            user_id = user.key().id()
-            if valid_pw(username, password, user.password_hash):
-                self.response.headers.add_header('Set-Cookie', 'ID|Hash=%s; Path=/' % make_secure_val(str(user_id)))
-                self.redirect('/welcome')
-                return
-            else:
-                params['password_error'] = 'Invalid password'
-        else:
-            params['username_error'] = "Username doesn't exist"
-            
-        self.render('login.html', **params)
 
-class LogoutHandler(Handler):
+        self.user = User.login(username, password)
+        if self.user:
+            self.login(self.user)
+            self.redirect('/welcome')
+        else: 
+            params['error'] = 'Invalid login'        
+            self.render('login.html', **params)
+
+class LogoutHandler(BlogHandler):
     def get(self):
-        self.response.headers.add_header('Set-Cookie', 'ID|Hash=; Path=/')
+        self.logout()
         self.redirect('/signup')
         
 def valid_username(username):
@@ -130,31 +105,7 @@ def valid_email(email):
     email_re = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
     return (True if email == '' else email_re.match(email))
 
-def make_salt(): 
-    return ''.join(random.choice(string.letters) for _ in xrange(5))
-    
-def make_pw_hash(name, pw, salt=None):
-    if not salt: salt = make_salt()
-    h = hashlib.sha256(name + pw + salt).hexdigest()
-    return '{},{}'.format(h, salt)
 
-def hash_str(s):
-        return hmac.new(SECRET,s).hexdigest()
-
-def make_secure_val(s):
-        return "%s|%s" % (s, hash_str(s))
-
-def check_secure_val(h):
-        val = h.split('|')[0]
-        if h == make_secure_val(val):
-                return val
-                
-def valid_pw(name, pw, h):
-    salt = h.split(',')[1]
-    return h == make_pw_hash(name, pw, salt)
-    
-def username_exists(name):
-    return User.all().filter('name = ', name).get()
     
 app = webapp2.WSGIApplication([('/signup',SignUpHandler),
                                ('/welcome',WelcomeHandler),
