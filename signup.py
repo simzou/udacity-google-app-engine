@@ -12,7 +12,7 @@ jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(template_d
 SECRET = "code"
 
 
-class BlogHandler(Handler):
+class UserHandler(Handler):
     def login(self, user):
         self.set_secure_cookie('user_id', str(user.key().id()))
         self.user = user
@@ -20,7 +20,7 @@ class BlogHandler(Handler):
     def logout(self):
         self.response.delete_cookie('user_id')
 
-class SignUpHandler(BlogHandler):
+class SignUpHandler(UserHandler):
     def get(self):
         self.render('signup.html')
         
@@ -62,7 +62,7 @@ class SignUpHandler(BlogHandler):
             self.login(self.user)
             self.redirect('/welcome')
 
-class WelcomeHandler(BlogHandler):
+class WelcomeHandler(UserHandler):
     def get(self):
         if self.user:
             visits = self.get_visits()
@@ -70,7 +70,7 @@ class WelcomeHandler(BlogHandler):
         else:
             self.redirect('/signup')
 
-class LoginHandler(BlogHandler):
+class LoginHandler(UserHandler):
     def get(self):
         self.render('login.html')
     
@@ -88,7 +88,7 @@ class LoginHandler(BlogHandler):
             params['error'] = 'Invalid login'        
             self.render('login.html', **params)
 
-class LogoutHandler(BlogHandler):
+class LogoutHandler(UserHandler):
     def get(self):
         self.logout()
         self.redirect('/signup')
@@ -105,8 +105,7 @@ def valid_email(email):
     email_re = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
     return (True if email == '' else email_re.match(email))
 
-
-    
+  
 app = webapp2.WSGIApplication([('/signup',SignUpHandler),
                                ('/welcome',WelcomeHandler),
                                ('/login', LoginHandler),
