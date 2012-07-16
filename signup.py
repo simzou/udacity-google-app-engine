@@ -3,14 +3,10 @@ import re
 import webapp2
 import jinja2
 from main import Handler
-from google.appengine.ext import db
 from main import User
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
-
-SECRET = "code"
-
 
 class UserHandler(Handler):
     def login(self, user):
@@ -19,6 +15,7 @@ class UserHandler(Handler):
 
     def logout(self):
         self.response.delete_cookie('user_id')
+        self.response.delete_cookie('visits')
 
 class SignUpHandler(UserHandler):
     def get(self):

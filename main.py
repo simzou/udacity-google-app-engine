@@ -100,7 +100,6 @@ class MainPage(Handler):
         visits = self.get_visits()
         self.set_secure_cookie('visits', str(visits))
         self.render("index.html", visits=visits)
-        
 
 
 app = webapp2.WSGIApplication([('/', MainPage)], 
