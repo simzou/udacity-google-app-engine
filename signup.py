@@ -35,12 +35,12 @@ class BlogHandler(Handler):
     def logout(self):
         self.set_secure_cookie('user_id', '')
 
-    def initialize(self):
-        webapp2.RequestHandler.initializee(self, *a, **kw)
+    def initialize(self, *a, **kw):
+        webapp2.RequestHandler.initialize(self, *a, **kw)
         uid = self.read_secure_cookie('user_id')
         self.user = uid and User.by_id(int(uid))
 
-class SignUpHandler(Handler):
+class SignUpHandler(BlogHandler):
     def get(self):
         self.render('signup.html')
         
@@ -78,20 +78,15 @@ class SignUpHandler(Handler):
         else:
             new_user = User(name=user_username, password_hash=make_pw_hash(user_username, user_password), email=user_email)
             new_user.put()
-            new_id = new_user.key().id()
-            self.response.headers.add_header('Set-Cookie', 'ID|Hash=%s; Path=/' % make_secure_val(str(new_id)))
+            self.user = new_user
+            self.login(self.user)
             self.redirect('/welcome')
 
-class WelcomeHandler(Handler):
+class WelcomeHandler(BlogHandler):
     def get(self):
-        # username = self.request.get('username')
-        cookie = self.request.cookies.get('ID|Hash')
-        if cookie and check_secure_val(cookie):
-            user_id, id_hash = cookie.split('|')
-            user = User.get_by_id(int(user_id))
+        if self.user:
             visits = self.get_visits()
-            self.render('welcome.html', user=user, visits=visits)
-            # self.response.out.write("Welcome, %s" % username.name
+            self.render('welcome.html', user=self.user, visits=visits)
         else:
             self.redirect('/signup')
 
