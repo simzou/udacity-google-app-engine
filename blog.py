@@ -21,6 +21,14 @@ class Post(db.Model):
     def render(self):
         self._render_text = self.content.replace('\n', '<br>')
         return render_str("post-content.html", post=self)
+
+    def as_dict(self):
+        time_fmt = '%c'
+        d = {'subject': self.subject,
+             'content': self.content, 
+             'created': self.created.strftime(time_fmt),
+             'last_modified': self.last_modified.strftime(time_fmt)}
+        return d
     
 class MainPage(Handler):
 
@@ -55,22 +63,14 @@ class JSONBlog(Handler):
     def get(self):
         self.response.headers['Content-Type'] = 'application/json'
         posts = db.GqlQuery('SELECT * FROM Post ORDER BY created DESC')
-        jsonlist = []
-        for post in posts:
-            d = {}
-            d['subject'] = post.subject
-            d['content'] = post.content
-            jsonlist.append(d)
-        self.write(json.dumps(jsonlist))
+        self.write(json.dumps([p.as_dict() for p in posts]))
 
 class JSONPost(Handler):
     def get(self, post_id):
         self.response.headers['Content-Type'] = 'application/json'
         d = {}
         post = Post.get_by_id(int(post_id))
-        d['subject'] = post.subject
-        d['content'] = post.content
-        self.write(json.dumps(d))
+        self.write(json.dumps(post.as_dict()))
 
 
 app = webapp2.WSGIApplication([('/blog/?', MainPage),
