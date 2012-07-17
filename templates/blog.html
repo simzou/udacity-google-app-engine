@@ -7,7 +7,7 @@
 {% block content %}
 
 <div class="main-heading">This is a blog</div>
-<a href="/blog/newpost">Make New Post</a>
+<a href="/newpost">Make New Post</a>
    {% for post in posts %}
    <div>
    		{{post.render() | safe}} 

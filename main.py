@@ -1,5 +1,6 @@
 import os
 import hmac
+import json
 import hashlib
 import webapp2
 import jinja2 
@@ -101,6 +102,18 @@ class MainPage(Handler):
         self.set_secure_cookie('visits', str(visits))
         self.render("index.html", visits=visits)
 
+class JSONBlog(Handler):
+    def get(self):
+        self.response.headers['Content-Type'] = 'application/json'
+        posts = db.GqlQuery('SELECT * FROM Post ORDER BY created DESC')
+        jsonlist = []
+        for post in posts:
+            d = {}
+            d['subject'] = post.subject
+            d['content'] = post.content
+            jsonlist.append(d)
+        self.write(json.dumps(jsonlist))
 
-app = webapp2.WSGIApplication([('/', MainPage)], 
+app = webapp2.WSGIApplication([('/', MainPage),
+                               ('/?\.json', JSONBlog)], 
                                 debug=True)

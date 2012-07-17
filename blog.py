@@ -53,7 +53,7 @@ class PostPage(Handler):
 		
 class JSONBlog(Handler):
     def get(self):
-        self.response.headers['Content-Type'] = 'text/plain'
+        self.response.headers['Content-Type'] = 'application/json'
         posts = db.GqlQuery('SELECT * FROM Post ORDER BY created DESC')
         jsonlist = []
         for post in posts:
@@ -65,7 +65,7 @@ class JSONBlog(Handler):
 
 class JSONPost(Handler):
     def get(self, post_id):
-        self.response.headers['Content-Type'] = 'text/plain'
+        self.response.headers['Content-Type'] = 'application/json'
         d = {}
         post = Post.get_by_id(int(post_id))
         d['subject'] = post.subject
@@ -74,8 +74,11 @@ class JSONPost(Handler):
 
 
 app = webapp2.WSGIApplication([('/blog/?', MainPage),
-                               ('/blog/newpost', NewPostPage),
+                               #('/blog/newpost', NewPostPage),
+                               ('/newpost', NewPostPage),
                                ('/blog/post/(\d+)', PostPage),
                                ('/blog/?\.json', JSONBlog),
+                               ('/?\.json', JSONBlog),
+                               ('/', MainPage),
                                ('/blog/post/(\d+)/?\.json', JSONPost)], 
                                debug=True)
