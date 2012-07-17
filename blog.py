@@ -1,4 +1,5 @@
 import os
+import json
 import webapp2
 import jinja2 
 from google.appengine.ext import db
@@ -19,7 +20,6 @@ class Post(db.Model):
 		
     def render(self):
         self._render_text = self.content.replace('\n', '<br>')
-        # self._render_text = self.content
         return render_str("post-content.html", post=self)
     
 class MainPage(Handler):
@@ -47,11 +47,35 @@ class NewPostPage(Handler):
             self.render('newpost.html', subject=subject,content=content,error=error)
         
 class PostPage(Handler):
-    def get(self,post_id):
+    def get(self, post_id):
         post = Post.get_by_id(int(post_id))
         self.render("post.html", post=post)
 		
+class JSONBlog(Handler):
+    def get(self):
+        self.response.headers['Content-Type'] = 'text/plain'
+        posts = db.GqlQuery('SELECT * FROM Post ORDER BY created DESC')
+        jsonlist = []
+        for post in posts:
+            d = {}
+            d['subject'] = post.subject
+            d['content'] = post.content
+            jsonlist.append(d)
+        self.write(json.dumps(jsonlist))
+
+class JSONPost(Handler):
+    def get(self, post_id):
+        self.response.headers['Content-Type'] = 'text/plain'
+        d = {}
+        post = Post.get_by_id(int(post_id))
+        d['subject'] = post.subject
+        d['content'] = post.content
+        self.write(json.dumps(d))
+
+
 app = webapp2.WSGIApplication([('/blog/?', MainPage),
                                ('/blog/newpost', NewPostPage),
-                               ('/blog/post/(\d+)', PostPage)], 
+                               ('/blog/post/(\d+)', PostPage),
+                               ('/blog/?\.json', JSONBlog),
+                               ('/blog/post/(\d+)/?\.json', JSONPost)], 
                                debug=True)
