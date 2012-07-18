@@ -63,6 +63,13 @@ textarea {
 	text-decoration: none;
 }
 
+.queried-time {
+	color: gray;
+	font-style: italic;
+	text-align: right;
+	margin-top: 50px;
+}
+
 .top-link:visited {
 	color: gray;
 }

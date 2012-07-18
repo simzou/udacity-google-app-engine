@@ -4,5 +4,8 @@
 {% endblock %}
 
 {% block content %}
+
     <p>{{post.render() | safe}}</p>
+	<div class="queried-time">Queried {{last_queried}} seconds ago</div>
+
 {% endblock %}

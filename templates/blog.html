@@ -6,11 +6,14 @@
 
 {% block content %}
 
-<div class="main-heading">This is a blog</div>
-<a href="/newpost">Make New Post</a>
-   {% for post in posts %}
-   <div>
-   		{{post.render() | safe}} 
-   	</div>
-    {% endfor %}
+	<div class="main-heading">This is a blog</div>
+	<a href="/newpost">Make New Post</a>
+	{% for post in posts %}
+		<div>
+			{{post.render() | safe}} 
+		</div>
+	{% endfor %}
+
+	<div class="queried-time">Queried {{last_queried}} seconds ago</div>
+	
 {% endblock %}

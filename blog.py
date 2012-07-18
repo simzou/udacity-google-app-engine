@@ -1,8 +1,13 @@
 import os
+import time
 import json
+
 import webapp2
 import jinja2 
+
 from google.appengine.ext import db
+from google.appengine.api import memcache
+
 from main import Handler
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates') 
@@ -33,8 +38,18 @@ class Post(db.Model):
 class MainPage(Handler):
 
     def get(self):
-        posts = db.GqlQuery('SELECT * FROM Post ORDER BY created DESC')
-        self.render('blog.html', posts=posts)
+        key = 'front_page'
+        time_key = 'front_queried'
+        posts = memcache.get(key)
+        queried = memcache.get(time_key)
+        if posts and queried: pass
+        else: 
+            posts = db.GqlQuery('SELECT * FROM Post ORDER BY created DESC')
+            memcache.set(key, posts)
+            queried = time.time()
+            memcache.set(time_key, queried)
+        last_queried = '%0.2f' % (time.time() - queried)
+        self.render('blog.html', posts=posts, last_queried=last_queried)
 		
 class NewPostPage(Handler):
         
@@ -56,8 +71,19 @@ class NewPostPage(Handler):
         
 class PostPage(Handler):
     def get(self, post_id):
-        post = Post.get_by_id(int(post_id))
-        self.render("post.html", post=post)
+        post = memcache.get(post_id)
+        time_key = '%s_queried' % post_id
+        queried = memcache.get(time_key)
+
+        if post and queried: pass
+        else:
+            queried = time.time()
+            post = Post.get_by_id(int(post_id))
+            memcache.set(post_id, post)
+            memcache.set(time_key, queried)
+
+        last_queried = '%0.2f' % (time.time() - queried)
+        self.render("post.html", post=post, last_queried=last_queried)
 		
 class JSONBlog(Handler):
     def get(self):
@@ -68,10 +94,13 @@ class JSONBlog(Handler):
 class JSONPost(Handler):
     def get(self, post_id):
         self.response.headers['Content-Type'] = 'application/json'
-        d = {}
         post = Post.get_by_id(int(post_id))
         self.write(json.dumps(post.as_dict()))
 
+class FlushCache(Handler):
+    def get(self):
+        memcache.flush_all()
+        self.redirect('/')
 
 app = webapp2.WSGIApplication([('/blog/?', MainPage),
                                #('/blog/newpost', NewPostPage),
@@ -80,5 +109,6 @@ app = webapp2.WSGIApplication([('/blog/?', MainPage),
                                ('/blog/?\.json', JSONBlog),
                                ('/?\.json', JSONBlog),
                                ('/', MainPage),
-                               ('/blog/post/(\d+)/?\.json', JSONPost)], 
+                               ('/blog/post/(\d+)/?\.json', JSONPost),
+                               ('/flush/?', FlushCache)], 
                                debug=True)
