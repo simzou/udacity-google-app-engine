@@ -45,6 +45,7 @@ class MainPage(Handler):
         if posts and queried: pass
         else: 
             posts = db.GqlQuery('SELECT * FROM Post ORDER BY created DESC')
+            posts = list(posts)
             memcache.set(key, posts)
             queried = time.time()
             memcache.set(time_key, queried)
