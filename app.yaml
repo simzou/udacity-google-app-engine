@@ -4,7 +4,6 @@ runtime: python27
 api_version: 1
 threadsafe: yes
 
-
 handlers:
 - url: /static
   static_dir: static
@@ -12,30 +11,9 @@ handlers:
 - url: /favicon\.ico
   static_files: favicon.ico
   upload: favicon\.ico
-
-- url: /rot13
-  script: rot13.app
-  
-- url: /logout
-  script: signup.app
-
-- url: /login
-  script: signup.app
-  
-- url: /signup
-  script: signup.app
-
-- url: /welcome
-  script: signup.app
-  
-- url: /blog.*
-  script: blog.app
-
-- url: /newpost
-  script: blog.app
   
 - url: .*
-  script: blog.app
+  script: main.app
 
 libraries:
 - name: webapp2
