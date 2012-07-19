@@ -37,24 +37,20 @@ class EditPage(Handler):
     
     def post(self, name):
         self.check_login()
-        params = {}
-        params['title'] = name
-
         page = Page.by_name(name)
-        content = params['content'] = self.request.get('content')
+        content = self.request.get('content')
 
-        time_fmt = '%A %c'
+        time_fmt = '%a %c'
         curr_time = datetime.datetime.today().strftime(time_fmt)
         entry = Entry(curr_time, content, self.user.name)
         if page:
             page.content=content
+            page.put()
         else:
             page = Page(name=name, content=content, history=[])
             page.put()
         page.history.append(entry)
-        page.render()
-        params['page'] = page
-        self.render('wiki.html', **params)
+        self.redirect('/wiki/'+name)
 
 
             # get page by name
@@ -70,7 +66,8 @@ class HistoryPage(Handler):
         page = Page.by_name(name)
         if not page:
             self.redirect('/wiki/_edit/'+name)
-            
+            return
+
         # get page by name
         # pass history into template
         # page1 = Page(name='page1', content='page1content')
