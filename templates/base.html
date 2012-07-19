@@ -20,12 +20,25 @@
         |
         <a class="top-link" href="/rot13">
             rot13</a>
-        
+        |
+        <a class="top-link" href="/wiki/Home">
+            wiki</a>
+
         <div class="login-area">
             {% if user %}
+
+                {% block wiki_header_logged_in %}
+
+                {% endblock %}
+
                 {{user.name}}
                 (<a class ="top-link" href="/logout">logout</a>)
             {% else %}
+
+                {% block wiki_header_logged_out %}
+
+                {% endblock %}
+                
                 <a class="top-link" href="/login">login</a>
                 |
                 <a class="top-link" href="/signup">signup</a>

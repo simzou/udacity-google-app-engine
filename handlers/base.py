@@ -39,3 +39,7 @@ class Handler(webapp2.RequestHandler):
         webapp2.RequestHandler.initialize(self, *a, **kw)
         uid = self.read_secure_cookie('user_id')
         self.user = uid and User.by_id(int(uid))
+
+    def check_login(self):
+        if not self.user:
+            self.redirect('/signup')

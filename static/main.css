@@ -19,6 +19,10 @@ textarea {
 	font-family: monospace;
 }
 
+.content {
+	margin-top: 20px;
+}
+
 .error {
     color: red;
 }
@@ -72,4 +76,15 @@ textarea {
 
 .top-link:visited {
 	color: gray;
+}
+
+.wiki-header {
+/*	margin-right:500px;
+*/	
+	position: absolute;
+	right: 200px;
+}
+
+.wiki-header:visited {
+	color:gray;
 }

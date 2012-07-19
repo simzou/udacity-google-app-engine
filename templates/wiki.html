@@ -1,9 +1,27 @@
 {% extends "base.html" %}
 
 {% block title %}
+Wiki - {{title}}
+{% endblock %}
+
+{% block wiki_header_logged_in %}
+
+	<a class="top-link" href="/wiki/_edit/{{title}}">edit</a>
+	|
+	<a class="top-link" href="/wiki/_history/{{title}}">history</a>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+{% endblock %}
+
+{% block wiki_header_logged_out %}
+
+	<a class="top-link" href="/wiki/_history/{{title}}">history</a>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 {% endblock %}
 
 {% block content %}
-
+	<div class="content">
+		{{page._render_text | safe}}
+	</div>
 {% endblock %}
