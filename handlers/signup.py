@@ -3,8 +3,6 @@ import re
 from handlers.base import Handler
 from models.user import User
 
-from main import template_dir, jinja_environment
-
 class UserHandler(Handler):
 
     def login(self, user):

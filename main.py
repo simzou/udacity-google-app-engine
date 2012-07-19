@@ -1,36 +1,32 @@
 import os
-import hmac
-import json
-import hashlib
 import webapp2
 import jinja2 
-import random
-import string
-from google.appengine.ext import db
+import logging
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates') 
-jinja_environment = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
+jinja_environment = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), 
+                                       autoescape=True)
 
-import handlers.blog as blog
-import handlers.signup as signup
-import handlers.rot13 as rot13
+app = webapp2.WSGIApplication([
+                               ('/', 'handlers.blog.MainPage'),
+                               ('/?\.json', 'handlers.blog.JSONBlog'),
+							   ('/blog/?', 'handlers.blog.MainPage'),
+                               ('/blog/?\.json', 'handlers.blog.JSONBlog'),
 
-app = webapp2.WSGIApplication([('/', blog.MainPage),
-                               ('/?\.json', blog.JSONBlog),
-							   ('/blog/?', blog.MainPage),
-                               ('/blog/?\.json', blog.JSONBlog),
-
-                               ('/newpost', blog.NewPostPage),
-                               ('/blog/newpost', blog.NewPostPage),
+                               ('/newpost', 'handlers.blog.NewPostPage'),
+                               ('/blog/newpost', 'handlers.blog.NewPostPage'),
 							   
-                               ('/blog/post/(\d+)', blog.PostPage),
-                               ('/blog/post/(\d+)/?\.json', blog.JSONPost),
+                               ('/blog/post/(\d+)', 'handlers.blog.PostPage'),
+                               ('/blog/post/(\d+)/?\.json', 'handlers.blog.JSONPost'),
 							   
-                               ('/flush/?', blog.FlushCache),
-							   ('/signup', signup.SignUpPage),
-                               ('/welcome', signup.WelcomePage),
-                               ('/login', signup.LoginPage),
-                               ('/logout', signup.LogoutPage),
+                               ('/flush/?', 'handlers.blog.FlushCache'),
+                               
+							   ('/signup', 'handlers.signup.SignUpPage'),
+                               ('/welcome', 'handlers.signup.WelcomePage'),
+                               ('/login', 'handlers.signup.LoginPage'),
+                               ('/logout', 'handlers.signup.LogoutPage'),
 							   
-							   ('/rot13', rot13.ROT13Page)],
+							   ('/rot13', 'handlers.rot13.ROT13Page')
+                               
+                               ],
                                 debug=True)
